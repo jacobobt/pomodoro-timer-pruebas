@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Pomodoro básico</title>
+</head>
+<body>
+  <h2>🍅 Pomodoro básico</h2>
+
+  <p id="estado">Listo</p>
+  <h1 id="tiempo">25:00</h1>
+
+  <button id="start">Start</button>
+  <button id="pause">Pause</button>
+  <button id="reset">Reset</button>
+
+  <hr>
+
+  <button id="modoTrabajo">Trabajo (25)</button>
+  <button id="modoDescanso">Descanso (5)</button>
+
+  <script>
+    let duracionBase = 1500; //25 min en segundos
+    let restante = duracionBase;
+    let timer = null;  //variable para identificar el reloj creado
+
+    const tiempoEl = document.getElementById("tiempo");
+    const estadoEl = document.getElementById("estado");
+
+    function ActualizarTiempo() {
+      const m = String(Math.floor(restante / 60)).padStart(2, "0"); //padStart SOLO existe para strings....por eso convertimos
+      const s = String(restante % 60).padStart(2, "0");
+      tiempoEl.textContent = `${m}:${s}`; //Pon dentro del <h1> el texto minutos:segundos
+    }
+
+    function start() {
+      if (timer) return; //Si ya hay un reloj en marcha, no hagas nada =>evitar crear relojes duplicados
+      estadoEl.textContent = "⏳ Corriendo...";
+      timer = setInterval(() => {  //Creo un reloj y guardo su identificador
+        restante--;
+        ActualizarTiempo();
+        if (restante <= 0) {
+          clearInterval(timer); //“El tiempo se ha acabado → apaga el reloj” Para el reloj que estaba funcionando
+          timer = null; //“Ahora mismo no hay reloj”
+          restante = 0; //Aseguro que el tiempo ha terminado exactamente en 0
+          ActualizarTiempo();
+          estadoEl.textContent = "✅ Terminado";
+          alert("¡Tiempo!");
+        }
+      }, 1000);
+    }
+
+    function pause() {
+      clearInterval(timer); //Se detiene la repetición automática
+                            //👉 El “tic” cada segundo deja de ocurrir
+      timer = null;
+      estadoEl.textContent = "⏸ Pausado";
+    }
+
+    function reset() {
+      pause();
+      restante = duracionBase;
+      estadoEl.textContent = "Listo";
+      ActualizarTiempo();
+    }
+
+    function setModo(minutos, texto) {
+      pause();
+      duracionBase = minutos * 60;
+      restante = duracionBase;
+      estadoEl.textContent = texto;
+      ActualizarTiempo();
+    }
+
+    document.getElementById("start").onclick = start;
+    document.getElementById("pause").onclick = pause;
+    document.getElementById("reset").onclick = reset;
+
+    document.getElementById("modoTrabajo").onclick = () => setModo(25, "Modo trabajo");
+    document.getElementById("modoDescanso").onclick = () => setModo(5, "Modo descanso");
+
+    ActualizarTiempo();
+  </script>
+</body>
+</html>
